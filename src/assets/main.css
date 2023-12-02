@@ -1,5 +1,12 @@
 @import './base.css';
 
+ul{
+    list-style: none;
+}
+a{
+    text-decoration: none;
+    color: inherit;
+}
 .container{
     width: 1100px;
     margin: 0 auto;
