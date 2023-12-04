@@ -11,6 +11,10 @@
       <ul>
         <li v-for="(item,index) in nav"><a href="#">{{ item }}</a></li>
       </ul>
+      <div class="search">
+          <span class="iconfont icon-sousuo"></span>
+          <input type="text">
+      </div>
     </div>
   </header>
 </template>
@@ -48,6 +52,9 @@ header {
       color: #fff;
       padding: 0 20px;
     }
+  }
+  .search{
+    height: 70px;
   }
 }
 </style>
