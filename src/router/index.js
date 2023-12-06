@@ -7,8 +7,42 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      children: [
+       
+      ]
     },
+    {
+      path: '/findMusic',
+      children: [
+        {
+          path: 'recommend',
+          name: 'recommend',
+          component: () => import('../views/findMusic/Recommend.vue')
+        },{
+          path: 'theCharts',
+          name: 'theCharts',
+          component: () => import('../views/findMusic/TheCharts.vue')
+        },{
+          path: 'songSheet',
+          name: 'songSheet',
+          component: () => import('../views/findMusic/SongSheet.vue')
+        },{
+          path: 'anchorRadio',
+          name: 'anchorRadio',
+          component: () => import('../views/findMusic/AnchorRadio.vue')
+        },{
+          path: 'singer',
+          name: 'singer',
+          component: () => import('../views/findMusic/Singer.vue')
+        },{
+          path: 'newDisc',
+          name: 'newDisc',
+          component: () => import('../views/findMusic/NewDisc.vue')
+        },
+      ]
+    },
+    
     {
       path: '/about',
       name: 'about',

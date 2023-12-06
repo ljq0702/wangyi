@@ -1,24 +1,26 @@
 <script setup>
+import { RouterLink } from 'vue-router';
+
 const nav = ['发现音乐', '我的音乐', '关注', '商城', '音乐人', '云推歌', '下载客户端']
 const tabBar = [
   {
     title: '推荐',
-    url: '#'
+    url: '/findMusic/recommend'
   }, {
     title: '排行榜',
-    url: '#'
+    url: '/findMusic/theCharts'
   }, {
     title: '歌单',
-    url: '#'
+    url: '/findMusic/songSheet'
   }, {
     title: '主播电台',
-    url: '#'
+    url: '/findMusic/anchorRadio'
   }, {
     title: '歌手',
-    url: '#'
+    url: '/findMusic/singer'
   }, {
     title: '新碟上架',
-    url: '#'
+    url: '/findMusic/newDisc'
   }
 ]
 </script>
@@ -34,7 +36,7 @@ const tabBar = [
           <li v-for="(item, index) in nav" :key="index">
             <a href="#">
               {{ item }}
-              <sub class="cor" v-if="item=='发现音乐'">&nbsp;</sub>
+              <sub class="cor" v-if="item == '发现音乐'">&nbsp;</sub>
             </a>
 
           </li>
@@ -56,6 +58,10 @@ const tabBar = [
         </ul>
       </div>
     </div>
+    
+    <main>
+      <RouterView />
+    </main>
   </div>
 </template>
 <style scoped lang="less">
@@ -209,4 +215,5 @@ header {
       }
     }
   }
-}</style>
+}
+</style>
