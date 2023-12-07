@@ -2,6 +2,7 @@
 <script setup >
 import { onMounted, reactive, ref } from 'vue'
 import { getBanner } from '../../request/api';
+import ListTitle from '@/components/findMusic/ListTitle.vue'
 const banners = reactive([]);
 const imgIndex = ref(0)
 let transition_Ref = reactive({});
@@ -75,7 +76,11 @@ function bannerAuto() {
             </div>
         </div>
         <div id="main" class="clear"> 
-            <div class="left"></div>
+            <div class="left">
+                <ListTitle title="热门推荐">
+
+                </ListTitle>
+            </div>
             <div class="right"></div>
         </div>
     </div>
@@ -218,8 +223,20 @@ function bannerAuto() {
         background-color: #fff;
         height: 1725px;
         margin: 0 auto;
+        border: 1px solid #d3d3d3;
+        box-sizing: border-box;
         .left{
-           
+           width: 728px;
+           height: 100%;
+            border-right: 1px solid #d3d3d3;
+            box-sizing: border-box;
+            float: left;
+            padding: 20px 20px 40px;
+        }
+        .right{
+            width: 250px;
+            height: 100%;
+            float: left;
         }
     }
 }</style>
