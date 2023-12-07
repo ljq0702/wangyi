@@ -7,10 +7,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
-      children: [
-       
-      ]
+      // component: HomeView,
     },
     {
       path: '/findMusic',
