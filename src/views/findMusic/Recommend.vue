@@ -1,20 +1,49 @@
 <!--导航栏 - 推荐 -->
 <script setup >
-import { onMounted, reactive, ref } from 'vue'
-import { getBanner } from '../../request/api';
+import { onBeforeMount, onMounted, reactive, ref } from 'vue'
+import { getBanner, getPersonalized, getNewDisc } from '../../request/api';
 import ListTitle from '@/components/findMusic/ListTitle.vue'
 const banners = reactive([]);
 const imgIndex = ref(0)
+const tabs_popular = ['华语', '流行', '摇滚', '民谣', '电子'] // 热门推荐
+const recommendSong_list = reactive([]); // 推荐歌单数据
+const newDisc_list = reactive([]);
 let transition_Ref = reactive({});
-onMounted(() => {
+onBeforeMount(() => {
     getBanner().then(res => {
         if (res.code == 200) {
             banners.values = res.banners
-            console.log(banners.values);
         }
     })
+    getTJ(); // 获取推荐数据
+    getNewDiscData(); // 获取新碟推荐数据
+})
+onMounted(() => {
+
     bannerAuto();
 })
+//  获取推荐歌单
+function getTJ() {
+    getPersonalized(8).then((res) => {
+        if (res.code == 200) {
+            recommendSong_list.values = res.result
+        }
+    })
+}
+// 获取新碟上架数据
+function getNewDiscData() {
+    getNewDisc({ limit: 10 }).then(res => {
+        if (res.code == 200) {
+            console.log(res);
+            let newArr = [];
+            for (let i = 0; i < res.weekData.length; i += 5) {
+                newArr.push(res.weekData.slice(i, i + 5));
+            }
+            newDisc_list.values = newArr;
+            // newDisc_list.values = res
+        }
+    })
+}
 // 轮播图左右切换
 function moveto(to) {
     transition_Ref = {}
@@ -75,11 +104,41 @@ function bannerAuto() {
 
             </div>
         </div>
-        <div id="main" class="clear"> 
+        <div id="main" class="clear">
             <div class="left">
-                <ListTitle title="热门推荐">
-
+                <ListTitle title="热门推荐" :need_tab="tabs_popular">
+                    <template v-slot>
+                        <ul class="popular">
+                            <li v-for="(item, index) in recommendSong_list.values" :key="index">
+                                <div
+                                    :style="{ background: `url(${item.picUrl}) no-repeat center center`, backgroundSize: '140px 140px' }">
+                                    <!-- <img :src="item.picUrl" alt=""> -->
+                                </div>
+                                <a href="#">{{ item.name }}</a>
+                            </li>
+                        </ul>
+                    </template>
                 </ListTitle>
+                <ListTitle title="新碟上架">
+                    <div class="newDisc_wrap clear">
+                        <a href="#"><span class="iconfont icon-zuojiantou"></span></a>
+                        <div class="roll">
+                            <ul v-for="(item, index) in newDisc_list.values" :key="index">
+                                <li v-for="(item2, index2) in item" :key="index2">
+                                    <div>
+                                        <img :src="item2.picUrl" alt="">
+                                        <a href="#" class="mask"></a>
+                                        <a href="#"></a>
+                                    </div>
+                                    <p class="title_head">{{ item2.name }}</p>
+                                    <p class="title_foot">{{ item2.artists[0].name }}</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <a href="#"><span class="iconfont icon-youjiantou"></span></a>
+                    </div>
+                </ListTitle>
+                <ListTitle title="榜单"></ListTitle>
             </div>
             <div class="right"></div>
         </div>
@@ -91,6 +150,7 @@ function bannerAuto() {
 <style lang="less" scoped>
 .content {
     background-color: #f5f5f5;
+
     #banner {
         height: 285px;
         // background-color: red;
@@ -112,22 +172,26 @@ function bannerAuto() {
         .container {
             height: 285px;
             position: relative;
-            > a:hover{
+
+            >a:hover {
                 background-color: rgba(51, 51, 51, 0.2);
             }
-            >a .iconfont{
+
+            >a .iconfont {
                 font-size: 35px;
                 color: #CFCFCF;
             }
-            >a{
+
+            >a {
                 width: 37px;
                 height: 63px;
                 text-align: center;
                 line-height: 63px;
             }
+
             >a:nth-child(1) {
                 position: absolute;
-                top:calc(50% - 17.5px) ;
+                top: calc(50% - 17.5px);
                 left: 0;
             }
 
@@ -145,10 +209,11 @@ function bannerAuto() {
                 .banner_imgs {
                     width: 730px;
                     height: 100%;
-                    background-color: hotpink;
+                    // background-color: hotpink;
                     overflow: hidden;
                     position: relative;
                     float: left;
+
                     .indicator {
                         width: 100%;
                         position: absolute;
@@ -185,27 +250,29 @@ function bannerAuto() {
                     }
 
                 }
-                .download{
-                width: 250px;
-                height: 100%;
-                background-color: hotpink;
-                float: left;
-                background: url(../../assets/images/download.png) no-repeat;
-                position: relative;
-                text-align: center;
-                p{
-                    color: #8d8d8d;
-                    font-size: 12px;
-                    position: absolute;
-                    bottom: 13px;
-                    left: 0;
-                    right: 0;
-                    margin: 0 auto;
+
+                .download {
+                    width: 250px;
+                    height: 100%;
+                    background-color: hotpink;
+                    float: left;
+                    background: url(../../assets/images/download.png) no-repeat;
+                    position: relative;
+                    text-align: center;
+
+                    p {
+                        color: #8d8d8d;
+                        font-size: 12px;
+                        position: absolute;
+                        bottom: 13px;
+                        left: 0;
+                        right: 0;
+                        margin: 0 auto;
+                    }
                 }
-            }
 
             }
-            
+
         }
     }
 
@@ -225,18 +292,126 @@ function bannerAuto() {
         margin: 0 auto;
         border: 1px solid #d3d3d3;
         box-sizing: border-box;
-        .left{
-           width: 728px;
-           height: 100%;
+
+        .left {
+            width: 728px;
+            height: 100%;
             border-right: 1px solid #d3d3d3;
             box-sizing: border-box;
             float: left;
             padding: 20px 20px 40px;
+
+            .popular {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                padding: 0;
+
+                li {
+                    width: 140px;
+                    padding-bottom: 30px;
+
+                    >div {
+                        width: 140px;
+                        height: 140px;
+                        margin-bottom: 10px;
+
+                        img {
+                            width: 140px;
+                            height: 140px;
+                        }
+                    }
+
+                    >a {
+                        // width: 140px;
+                        font-size: 14px;
+                        color: #000;
+
+                        &:hover {
+                            text-decoration: underline;
+                        }
+                    }
+                }
+
+
+            }
+
+            .newDisc_wrap {
+                height: 184px;
+                background-color: #f5f5f5;
+                border: 1px solid #d3d3d3;
+                line-height: 184px;
+
+                >a {
+                    float: left;
+                }
+
+                .roll {
+                    height: 180px;
+                    width: 645px;
+                    float: left;
+                    margin-top: 2px;
+                    overflow: hidden;
+
+                    ul {
+                        width: 645px;
+                        margin-top: 28px;
+                        float: left;
+                        li {
+                            width: 118px;
+                            height: 150px;
+                            display: inline;
+                            float: left;
+                            margin-left: 11px;
+                            div {
+                                width: 118px;
+                                height: 109px;
+                                position: relative;
+                                background: url(../../assets/images/index.png) no-repeat;
+                                background-position: -260px 100px;
+                                // background-size: ;
+                                .mask {
+                                    width: 118px;
+                                    height: 100px;
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    background: url(../../assets/images/coverall.png) no-repeat;
+                                    background-position: 0px -570px;
+                                }
+                                img {
+                                    width: 100px;
+                                    height: 100px;
+                                }
+                            }
+                            p{
+                                line-height: 18px;
+                                font-size: 12px;
+                                // position: absolute;
+                            }
+                            .title_head{
+                                color: #000;
+                                text-wrap: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+
+                            }
+                            .title_foot{
+                                color: #666;
+                            }
+                        }
+                    }
+                }
+
+            }
         }
-        .right{
+
+        .right {
             width: 250px;
             height: 100%;
             float: left;
         }
+
+
     }
 }</style>

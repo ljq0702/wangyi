@@ -8,16 +8,16 @@ defineProps({
         default: []
     }
 })
-const tabs = ['华语', '流行', '摇滚', '民谣', '电子']
+
 </script>
 <template>
     <div class="hd_content">
         <div class="title_wrap">
             <a href="#">{{ title }}</a>
             <div class="tab" v-if="need_tab.length != 0">
-                <template v-for="(item, index) in tabs">
+                <template v-for="(item, index) in need_tab">
                     <a href="#">{{ item }}</a>
-                    <span class="line" v-if="index != tabs.length - 1">|</span>
+                    <span class="line" v-if="index != need_tab.length - 1">|</span>
                 </template>
 
             </div>
@@ -32,14 +32,15 @@ const tabs = ['华语', '流行', '摇滚', '民谣', '电子']
 <style lang="less" scoped>
 .hd_content {
     width: 100%;
-    background: url(../../assets/images/index.png) no-repeat 0 9999px;
-    background-position: -225px -156px;
 
     .title_wrap {
         height: 33px;
         border-bottom: 2px solid #C10D0C;
         padding: 0px 10px 0px 34px;
-
+        background: url(../../assets/images/index.png) no-repeat 0 9999px;
+        background-position: -225px -156px;
+        margin-bottom: 20px;
+        margin-top: 30px;
         >a {
             font-size: 20px;
             color: #333;
@@ -52,9 +53,11 @@ const tabs = ['华语', '流行', '摇滚', '民谣', '电子']
             font-size: 12px;
             margin: 7px 0px 0px 20px;
             color: #666;
-            a:hover{
+
+            a:hover {
                 text-decoration: underline;
             }
+
             .line {
                 margin: 0px 10px;
             }
@@ -64,10 +67,12 @@ const tabs = ['华语', '流行', '摇滚', '民谣', '电子']
             font-size: 12px;
             float: right;
             color: #666;
+
             span {
                 color: #C10D0C;
             }
         }
     }
-}
-</style>
+
+    
+}</style>
