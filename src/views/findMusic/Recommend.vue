@@ -3,7 +3,8 @@
 import { onBeforeMount, onMounted, reactive, ref } from 'vue'
 import { getBanner, getPersonalized, getNewDisc } from '../../request/api';
 import ListTitle from '@/components/findMusic/ListTitle.vue'
-import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Swiper, SwiperSlide, useSwiper } from 'swiper/vue'
+import {Navigation} from 'swiper/modules'
 import 'swiper/css'
 const banners = reactive([]);
 const imgIndex = ref(0)
@@ -13,6 +14,7 @@ const newDisc_list = reactive([]); // 新碟上架标记
 let transition_Ref = reactive({}); // bannner样式对象
 const num_disc = ref(1); // 新碟轮播标记
 const disc_style = reactive([]) // 新碟上架滑动样式
+let swiper = useSwiper();
 onBeforeMount(() => {
     getBanner().then(res => {
         if (res.code == 200) {
@@ -81,8 +83,10 @@ function bannerAuto() {
     }, 5000)
 
 }
+const onSwip1er = (swiper) => {}
 // 新碟上架 轮播 向左移动
 function onPrevious() {
+    
 }
 // 新碟上架 轮播 向右移动
 function onNext() {
@@ -130,12 +134,8 @@ function onNext() {
                     </template>
                 </ListTitle>
                 <ListTitle title="新碟上架">
-
-                    
-
                     <div class="newDisc_wrap clear">
-                        <a href="javascript:void(0)" @click="onPrevious" class="pre"><span
-                                class="iconfont icon-zuojiantou"></span></a>
+                        
                         <!-- <div class="roll clear">
                             <ul v-for="(item, index) in newDisc_list.values" :key="index">
                                 <li v-for="(item2, index2) in item" :key="index2">
@@ -149,34 +149,39 @@ function onNext() {
                                 </li>
                             </ul>
                         </div> -->
-                        <swiper :modules="modules" :loop="true" :slides-per-view="1" :space-between="50"
-                         :navigation="navigation"
-                         :scrollbar="{ draggable: false }" class="swiperBox roll"
-                        @slideChange="onSlideChange">
-                        <swiper-slide v-for="(item, index) in newDisc_list.values" :key="index">
-                            <ul>
-                                <li v-for="(item2, index2) in item" :key="index2">
-                                    <div>
-                                        <img :src="item2.picUrl" alt="">
-                                        <a href="#" class="mask"></a>
-                                        <a href="#"></a>
-                                    </div>
-                                    <p class="title_head">{{ item2.name }}</p>
-                                    <p class="title_foot">{{ item2.artists[0].name }}</p>
-                                </li>
-                            </ul>
-                        </swiper-slide>
-                        <!-- <swiper-slide>Slide 2</swiper-slide>
-                        <swiper-slide>Slide 3</swiper-slide> -->
-                        <div class="swiper-button-prev" @click.stop="prevEl(item, index)" />
-                        <!--左箭头。如果放置在swiper外面，需要自定义样式。-->
-                        <div class="swiper-button-next" @click.stop="nextEl" />
-                        <!--右箭头。如果放置在swiper外面，需要自定义样式。-->
-                        <!-- 如果需要滚动条 -->
-                        <!-- <div class="swiper-scrollbar"></div> -->
-                    </swiper>
-                        <a href="javascript:void(0)" @click="onNext" class="next"><span
-                                class="iconfont icon-youjiantou"></span></a>
+                        <div class="swiper-button-prev pre">
+                            <a href="javascript:void(0)" @click="onPrevious" class="pre"><span
+                                class="iconfont icon-zuojiantou"></span></a>
+                        </div>
+                        <swiper :modules="modules" :slides-per-view="1" :space-between="30"
+                             :scrollbar="{ draggable: false }" class="swiperBox roll"
+                             @swiper="onSwiper"
+                            @slideChange="onSlideChange">
+                            <swiper-slide v-for="(item, index) in newDisc_list.values" :key="index">
+                                <ul>
+                                    <li v-for="(item2, index2) in item" :key="index2">
+                                        <div>
+                                            <img :src="item2.picUrl" alt="">
+                                            <a href="#" class="mask"></a>
+                                            <a href="#"></a>
+                                        </div>
+                                        <p class="title_head">{{ item2.name }}</p>
+                                        <p class="title_foot">{{ item2.artists[0].name }}</p>
+                                    </li>
+                                </ul>
+                            </swiper-slide>
+
+                            <!--左箭头。如果放置在swiper外面，需要自定义样式。-->
+
+                            <!--右箭头。如果放置在swiper外面，需要自定义样式。-->
+                            <!-- 如果需要滚动条 -->
+                            <!-- <div class="swiper-scrollbar"></div> -->
+                        </swiper>
+                        <div class="swiper-button-next next">
+                            <a href="javascript:void(0)" @click="onNext" class="next"><span
+                                    class="iconfont icon-youjiantou"></span></a>
+                        </div>
+
                     </div>
                 </ListTitle>
                 <ListTitle title="榜单"></ListTitle>
@@ -382,7 +387,7 @@ function onNext() {
                 background-color: #f5f5f5;
                 border: 1px solid #d3d3d3;
                 line-height: 184px;
-                padding-left: 16px;
+                // padding-left: 16px;
                 position: relative;
 
                 >a {
@@ -408,7 +413,6 @@ function onNext() {
                     margin-top: 2px;
                     overflow: hidden;
                     position: relative;
-
                     ul {
                         width: 645px;
                         margin-top: 28px;
