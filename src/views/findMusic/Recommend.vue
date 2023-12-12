@@ -3,12 +3,16 @@
 import { onBeforeMount, onMounted, reactive, ref } from 'vue'
 import { getBanner, getPersonalized, getNewDisc } from '../../request/api';
 import ListTitle from '@/components/findMusic/ListTitle.vue'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import 'swiper/css'
 const banners = reactive([]);
 const imgIndex = ref(0)
 const tabs_popular = ['华语', '流行', '摇滚', '民谣', '电子'] // 热门推荐
 const recommendSong_list = reactive([]); // 推荐歌单数据
-const newDisc_list = reactive([]);
-let transition_Ref = reactive({});
+const newDisc_list = reactive([]); // 新碟上架标记
+let transition_Ref = reactive({}); // bannner样式对象
+const num_disc = ref(1); // 新碟轮播标记
+const disc_style = reactive([]) // 新碟上架滑动样式
 onBeforeMount(() => {
     getBanner().then(res => {
         if (res.code == 200) {
@@ -19,7 +23,6 @@ onBeforeMount(() => {
     getNewDiscData(); // 获取新碟推荐数据
 })
 onMounted(() => {
-
     bannerAuto();
 })
 //  获取推荐歌单
@@ -34,11 +37,12 @@ function getTJ() {
 function getNewDiscData() {
     getNewDisc({ limit: 10 }).then(res => {
         if (res.code == 200) {
-            console.log(res);
             let newArr = [];
-            for (let i = 0; i < res.weekData.length; i += 5) {
+            for (let i = 0; i < 10; i += 5) {
                 newArr.push(res.weekData.slice(i, i + 5));
             }
+            newArr.push(newArr[0]);
+            newArr.unshift(newArr[newArr.length - 2])
             newDisc_list.values = newArr;
             // newDisc_list.values = res
         }
@@ -77,6 +81,12 @@ function bannerAuto() {
     }, 5000)
 
 }
+// 新碟上架 轮播 向左移动
+function onPrevious() {
+}
+// 新碟上架 轮播 向右移动
+function onNext() {
+}
 </script>
 <template>
     <div class="content">
@@ -93,7 +103,7 @@ function bannerAuto() {
                                 @click="moveToImg(index)"></a>
                         </div>
                         <template v-for="(item, index) in banners.values" :key="index">
-                            <a href="#" :class="imgIndex == index ? 'opacity' : 'opacity_no'" :style="transition_Ref"><img
+                            <a href="" :class="imgIndex == index ? 'opacity' : 'opacity_no'" :style="transition_Ref"><img
                                     alt="" :src="item.imageUrl"></a>
                         </template>
                     </div>
@@ -120,9 +130,13 @@ function bannerAuto() {
                     </template>
                 </ListTitle>
                 <ListTitle title="新碟上架">
+
+                    
+
                     <div class="newDisc_wrap clear">
-                        <a href="#"><span class="iconfont icon-zuojiantou"></span></a>
-                        <div class="roll">
+                        <a href="javascript:void(0)" @click="onPrevious" class="pre"><span
+                                class="iconfont icon-zuojiantou"></span></a>
+                        <!-- <div class="roll clear">
                             <ul v-for="(item, index) in newDisc_list.values" :key="index">
                                 <li v-for="(item2, index2) in item" :key="index2">
                                     <div>
@@ -134,8 +148,35 @@ function bannerAuto() {
                                     <p class="title_foot">{{ item2.artists[0].name }}</p>
                                 </li>
                             </ul>
-                        </div>
-                        <a href="#"><span class="iconfont icon-youjiantou"></span></a>
+                        </div> -->
+                        <swiper :modules="modules" :loop="true" :slides-per-view="1" :space-between="50"
+                         :navigation="navigation"
+                         :scrollbar="{ draggable: false }" class="swiperBox roll"
+                        @slideChange="onSlideChange">
+                        <swiper-slide v-for="(item, index) in newDisc_list.values" :key="index">
+                            <ul>
+                                <li v-for="(item2, index2) in item" :key="index2">
+                                    <div>
+                                        <img :src="item2.picUrl" alt="">
+                                        <a href="#" class="mask"></a>
+                                        <a href="#"></a>
+                                    </div>
+                                    <p class="title_head">{{ item2.name }}</p>
+                                    <p class="title_foot">{{ item2.artists[0].name }}</p>
+                                </li>
+                            </ul>
+                        </swiper-slide>
+                        <!-- <swiper-slide>Slide 2</swiper-slide>
+                        <swiper-slide>Slide 3</swiper-slide> -->
+                        <div class="swiper-button-prev" @click.stop="prevEl(item, index)" />
+                        <!--左箭头。如果放置在swiper外面，需要自定义样式。-->
+                        <div class="swiper-button-next" @click.stop="nextEl" />
+                        <!--右箭头。如果放置在swiper外面，需要自定义样式。-->
+                        <!-- 如果需要滚动条 -->
+                        <!-- <div class="swiper-scrollbar"></div> -->
+                    </swiper>
+                        <a href="javascript:void(0)" @click="onNext" class="next"><span
+                                class="iconfont icon-youjiantou"></span></a>
                     </div>
                 </ListTitle>
                 <ListTitle title="榜单"></ListTitle>
@@ -341,34 +382,54 @@ function bannerAuto() {
                 background-color: #f5f5f5;
                 border: 1px solid #d3d3d3;
                 line-height: 184px;
+                padding-left: 16px;
+                position: relative;
 
                 >a {
-                    float: left;
+                    // float: left;
+                }
+
+                .pre {
+                    position: absolute;
+                    top: 0;
+                    left: 5px;
+                    z-index: 99;
+                }
+
+                .next {
+                    position: absolute;
+                    top: 0;
+                    right: 5px;
                 }
 
                 .roll {
                     height: 180px;
                     width: 645px;
-                    float: left;
                     margin-top: 2px;
                     overflow: hidden;
+                    position: relative;
 
                     ul {
                         width: 645px;
                         margin-top: 28px;
-                        float: left;
+                        position: absolute;
+                        top: 0;
+
+                        // float: left;
                         li {
                             width: 118px;
                             height: 150px;
                             display: inline;
                             float: left;
                             margin-left: 11px;
+
                             div {
                                 width: 118px;
                                 height: 109px;
                                 position: relative;
                                 background: url(../../assets/images/index.png) no-repeat;
                                 background-position: -260px 100px;
+
                                 // background-size: ;
                                 .mask {
                                     width: 118px;
@@ -379,24 +440,28 @@ function bannerAuto() {
                                     background: url(../../assets/images/coverall.png) no-repeat;
                                     background-position: 0px -570px;
                                 }
+
                                 img {
                                     width: 100px;
                                     height: 100px;
                                 }
                             }
-                            p{
+
+                            p {
                                 line-height: 18px;
                                 font-size: 12px;
                                 // position: absolute;
                             }
-                            .title_head{
+
+                            .title_head {
                                 color: #000;
                                 text-wrap: nowrap;
                                 overflow: hidden;
                                 text-overflow: ellipsis;
 
                             }
-                            .title_foot{
+
+                            .title_foot {
                                 color: #666;
                             }
                         }
@@ -414,4 +479,5 @@ function bannerAuto() {
 
 
     }
-}</style>
+}
+</style>
