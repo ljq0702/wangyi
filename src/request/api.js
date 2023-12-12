@@ -13,3 +13,7 @@ export function getPersonalized(limit){
 export function getNewDisc(data){
     return service.get('/top/album',{params:data});
 }
+// 所有榜单
+export function getTopList(){
+    return service.get('/toplist');
+}

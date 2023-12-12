@@ -1,7 +1,7 @@
 <!--导航栏 - 推荐 -->
 <script setup >
 import { onBeforeMount, onMounted, reactive, ref } from 'vue'
-import { getBanner, getPersonalized, getNewDisc } from '../../request/api';
+import { getBanner, getPersonalized, getNewDisc,getTopList } from '../../request/api';
 import ListTitle from '@/components/findMusic/ListTitle.vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import {Navigation} from 'swiper/modules'
@@ -14,7 +14,8 @@ const newDisc_list = reactive([]); // 新碟上架标记
 let transition_Ref = reactive({}); // bannner样式对象
 const num_disc = ref(1); // 新碟轮播标记
 const disc_style = reactive([]) // 新碟上架滑动样式
-let userSwiper = null
+let userSwiper = null  // 使用swiper
+const topList = reactive([]);
 onBeforeMount(() => {
     getBanner().then(res => {
         if (res.code == 200) {
@@ -23,6 +24,7 @@ onBeforeMount(() => {
     })
     getTJ(); // 获取推荐数据
     getNewDiscData(); // 获取新碟推荐数据
+    getTopListData(); // 获取榜单数据
 })
 onMounted(() => {
     bannerAuto();
@@ -48,6 +50,16 @@ function getNewDiscData() {
             console.log(newArr);
             newDisc_list.values = newArr;
             // newDisc_list.values = res
+        }
+    })
+}
+// 获取所有榜单数据
+function getTopListData(){
+    getTopList().then(res => {
+        if(res.code == 200){
+            console.log(res);
+            topList.values = res.list.splice(0,3);
+            console.log('toplist', topList.values);
         }
     })
 }
@@ -90,12 +102,10 @@ const onSwiper = (swiper) => {
 }
 // 新碟上架 轮播 向左移动
 function onPrevious() {
-    console.log(1);
     userSwiper.slidePrev();
 }
 // 新碟上架 轮播 向右移动
 function onNext() {
-    console.log(2);
     userSwiper.slideNext();
 }
 </script>
@@ -142,20 +152,6 @@ function onNext() {
                 </ListTitle>
                 <ListTitle title="新碟上架">
                     <div class="newDisc_wrap clear">
-                        
-                        <!-- <div class="roll clear">
-                            <ul v-for="(item, index) in newDisc_list.values" :key="index">
-                                <li v-for="(item2, index2) in item" :key="index2">
-                                    <div>
-                                        <img :src="item2.picUrl" alt="">
-                                        <a href="#" class="mask"></a>
-                                        <a href="#"></a>
-                                    </div>
-                                    <p class="title_head">{{ item2.name }}</p>
-                                    <p class="title_foot">{{ item2.artists[0].name }}</p>
-                                </li>
-                            </ul>
-                        </div> -->
                         <div class="swiper-button-prev pre">
                             <a href="javascript:void(0)" @click="onPrevious" class="pre"><span
                                 class="iconfont icon-zuojiantou"></span></a>
@@ -177,12 +173,6 @@ function onNext() {
                                     </li>
                                 </ul>
                             </swiper-slide>
-
-                            <!--左箭头。如果放置在swiper外面，需要自定义样式。-->
-
-                            <!--右箭头。如果放置在swiper外面，需要自定义样式。-->
-                            <!-- 如果需要滚动条 -->
-                            <!-- <div class="swiper-scrollbar"></div> -->
                         </swiper>
                         <div class="swiper-button-next next">
                             <a href="javascript:void(0)" @click="onNext" class="next"><span
@@ -191,7 +181,29 @@ function onNext() {
 
                     </div>
                 </ListTitle>
-                <ListTitle title="榜单"></ListTitle>
+                <ListTitle title="榜单">
+                    <div class="bangdan clear">
+                        <div class="toplist" v-for="(item,index) in topList.values">
+                            <div class="top">
+                                <div class="cover_img">
+                                    <img :src="item.coverImgUrl+'?param=80y80'" alt="">
+                                </div>
+                                <div class="top_op clear">
+                                    <a href="#">{{ item.name }}</a>
+                                    <div>
+                                        <a href="#">bofang</a>
+                                        <a href="#">inde</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list">
+                                <ol>
+                                    
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </ListTitle>
             </div>
             <div class="right"></div>
         </div>
@@ -479,6 +491,40 @@ function onNext() {
                     }
                 }
 
+            }
+            .bangdan{
+                height: 472px;
+                background: url(../../assets/images/index_bill.png) no-repeat center center;
+                .toplist{
+                    width: 230px;
+                    height: 100%;
+                    float: left;
+                    &:last-child{
+                        width: 227px;
+                        float: left;
+                    }
+                    .top{
+                        width: 230px;
+                        height: 120px;
+                        padding: 20px 0px 0px 19px;
+                        .cover_img{
+                            float: left;
+                        }
+                        .top_op{
+                            width: 116px;
+                            float: left;
+                            margin: 6px 0px 0px 10px;
+                            > a{
+                                font-size: 14px;
+                                color: #333;
+                                font-weight: 900;
+                                &:hover{
+                                    text-decoration: underline;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
