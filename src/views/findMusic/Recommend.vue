@@ -3,7 +3,7 @@
 import { onBeforeMount, onMounted, reactive, ref } from 'vue'
 import { getBanner, getPersonalized, getNewDisc } from '../../request/api';
 import ListTitle from '@/components/findMusic/ListTitle.vue'
-import { Swiper, SwiperSlide, useSwiper } from 'swiper/vue'
+import { Swiper, SwiperSlide } from 'swiper/vue'
 import {Navigation} from 'swiper/modules'
 import 'swiper/css'
 const banners = reactive([]);
@@ -14,7 +14,7 @@ const newDisc_list = reactive([]); // 新碟上架标记
 let transition_Ref = reactive({}); // bannner样式对象
 const num_disc = ref(1); // 新碟轮播标记
 const disc_style = reactive([]) // 新碟上架滑动样式
-let swiper = useSwiper();
+let userSwiper = null
 onBeforeMount(() => {
     getBanner().then(res => {
         if (res.code == 200) {
@@ -45,6 +45,7 @@ function getNewDiscData() {
             }
             newArr.push(newArr[0]);
             newArr.unshift(newArr[newArr.length - 2])
+            console.log(newArr);
             newDisc_list.values = newArr;
             // newDisc_list.values = res
         }
@@ -83,13 +84,19 @@ function bannerAuto() {
     }, 5000)
 
 }
-const onSwip1er = (swiper) => {}
+const onSwiper = (swiper) => {
+    console.log(swiper);
+    userSwiper = swiper
+}
 // 新碟上架 轮播 向左移动
 function onPrevious() {
-    
+    console.log(1);
+    userSwiper.slidePrev();
 }
 // 新碟上架 轮播 向右移动
 function onNext() {
+    console.log(2);
+    userSwiper.slideNext();
 }
 </script>
 <template>
@@ -153,7 +160,7 @@ function onNext() {
                             <a href="javascript:void(0)" @click="onPrevious" class="pre"><span
                                 class="iconfont icon-zuojiantou"></span></a>
                         </div>
-                        <swiper :modules="modules" :slides-per-view="1" :space-between="30"
+                        <swiper :modules="modules" :loop="true" :slides-per-view="1" :space-between="5"
                              :scrollbar="{ draggable: false }" class="swiperBox roll"
                              @swiper="onSwiper"
                             @slideChange="onSlideChange">
@@ -397,14 +404,14 @@ function onNext() {
                 .pre {
                     position: absolute;
                     top: 0;
-                    left: 5px;
+                    left: 2px;
                     z-index: 99;
                 }
 
                 .next {
                     position: absolute;
                     top: 0;
-                    right: 5px;
+                    right: 2px;
                 }
 
                 .roll {
