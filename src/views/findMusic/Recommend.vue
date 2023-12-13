@@ -1,10 +1,10 @@
 <!--导航栏 - 推荐 -->
 <script setup >
 import { onBeforeMount, onMounted, reactive, ref } from 'vue'
-import { getBanner, getPersonalized, getNewDisc,getTopList } from '../../request/api';
+import { getBanner, getPersonalized, getNewDisc, getTopList, getPlaylistDetail, getPlayListAll } from '../../request/api';
 import ListTitle from '@/components/findMusic/ListTitle.vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import {Navigation} from 'swiper/modules'
+import { Navigation } from 'swiper/modules'
 import 'swiper/css'
 const banners = reactive([]);
 const imgIndex = ref(0)
@@ -54,12 +54,28 @@ function getNewDiscData() {
     })
 }
 // 获取所有榜单数据
-function getTopListData(){
+function getTopListData() {
     getTopList().then(res => {
-        if(res.code == 200){
+        if (res.code == 200) {
             console.log(res);
-            topList.values = res.list.splice(0,3);
+            topList.values = res.list.splice(0, 3);
             console.log('toplist', topList.values);
+            topList.values.forEach((item, index) => {
+                console.log(item);
+                getPlayListAll({ id: item.id, limit: 10 }).then(res => {
+                    if (res.code == 200) {
+                        topList.values[index].playlist = res.songs;
+                    }
+                })
+            })
+        }
+    })
+}
+// 获取歌单详情
+function getPlaylistDetailData(id) {
+    getPlaylistDetail(id).then(res => {
+        if (res.code == 200) {
+            console.log(res);
         }
     })
 }
@@ -154,11 +170,10 @@ function onNext() {
                     <div class="newDisc_wrap clear">
                         <div class="swiper-button-prev pre">
                             <a href="javascript:void(0)" @click="onPrevious" class="pre"><span
-                                class="iconfont icon-zuojiantou"></span></a>
+                                    class="iconfont icon-zuojiantou"></span></a>
                         </div>
                         <swiper :modules="modules" :loop="true" :slides-per-view="1" :space-between="5"
-                             :scrollbar="{ draggable: false }" class="swiperBox roll"
-                             @swiper="onSwiper"
+                            :scrollbar="{ draggable: false }" class="swiperBox roll" @swiper="onSwiper"
                             @slideChange="onSlideChange">
                             <swiper-slide v-for="(item, index) in newDisc_list.values" :key="index">
                                 <ul>
@@ -183,23 +198,34 @@ function onNext() {
                 </ListTitle>
                 <ListTitle title="榜单">
                     <div class="bangdan clear">
-                        <div class="toplist" v-for="(item,index) in topList.values">
+                        <div class="toplist" v-for="(item, index) in topList.values">
                             <div class="top">
                                 <div class="cover_img">
-                                    <img :src="item.coverImgUrl+'?param=80y80'" alt="">
+                                    <img :src="item.coverImgUrl + '?param=80y80'" alt="">
                                 </div>
                                 <div class="top_op clear">
                                     <a href="#">{{ item.name }}</a>
                                     <div>
-                                        <a href="#">bofang</a>
-                                        <a href="#">inde</a>
+                                        <a href="#"><span class="iconfont icon-bofang"></span></a>
+                                        <a href="#"><span class="iconfont icon-tianjiawenjianjia"></span></a>
                                     </div>
                                 </div>
                             </div>
                             <div class="list">
-                                <ol>
-                                    
-                                </ol>
+                                <ul>
+                                    <li class="clear" v-for="(item_song, i) in item.playlist" :key="i">
+                                        <span>{{ i + 1 }}</span>
+                                        <a href="#">{{ item_song.name }}</a>
+                                        <div class="play_op">
+                                            <a href="#"><span class="iconfont icon-bofang"></span></a>
+                                            <a href="#"><span class="iconfont icon-bofang"></span></a>
+                                            <a href="#"><span class="iconfont icon-bofang"></span></a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="">
+                                <a href="#"><span>查看全部></span></a>
                             </div>
                         </div>
                     </div>
@@ -353,7 +379,7 @@ function onNext() {
     #main {
         width: 980px;
         background-color: #fff;
-        height: 1725px;
+        height: 1423px;
         margin: 0 auto;
         border: 1px solid #d3d3d3;
         box-sizing: border-box;
@@ -432,6 +458,7 @@ function onNext() {
                     margin-top: 2px;
                     overflow: hidden;
                     position: relative;
+
                     ul {
                         width: 645px;
                         margin-top: 28px;
@@ -492,36 +519,136 @@ function onNext() {
                 }
 
             }
-            .bangdan{
+
+            .bangdan {
                 height: 472px;
                 background: url(../../assets/images/index_bill.png) no-repeat center center;
-                .toplist{
+
+                .toplist {
                     width: 230px;
                     height: 100%;
                     float: left;
-                    &:last-child{
+
+                    &:last-child {
                         width: 227px;
                         float: left;
                     }
-                    .top{
+
+                    .top {
                         width: 230px;
                         height: 120px;
                         padding: 20px 0px 0px 19px;
-                        .cover_img{
+
+                        .cover_img {
                             float: left;
                         }
-                        .top_op{
+
+                        .top_op {
                             width: 116px;
                             float: left;
                             margin: 6px 0px 0px 10px;
-                            > a{
+
+                            >a {
                                 font-size: 14px;
                                 color: #333;
                                 font-weight: 900;
-                                &:hover{
+
+                                &:hover {
                                     text-decoration: underline;
                                 }
                             }
+
+                            div {
+                                a {
+                                    margin-right: 10px;
+
+                                    span {
+                                        font-size: 22px;
+                                        color: #BDBDBD;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    .list {
+                        width: 230px;
+                        height: 320px;
+                        ul {
+                            width: calc(230px - 50px);
+                            height: 100%;
+                            margin-left: 50px;
+
+                            li {
+                                width: 180px;
+                                height: 32px;
+                                line-height: 32px;
+                                >span {
+                                    font-size: 16px;
+                                    color: #666;
+                                    width: 35px;
+                                    height: 32px;
+                                    margin-left: -35px;
+                                    text-align: center;
+                                    float: left;
+                                }
+
+                                &:nth-child(1) span,
+                                &:nth-child(2) span,
+                                &:nth-child(3) span {
+                                    color: #C10D0C;
+                                }
+
+                                >a {
+                                    width: 170px;
+                                    height: 32px;
+                                    font-size: 12px;
+                                    color: #000;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    white-space: nowrap;
+                                    float: left;
+
+                                    &:hover {
+                                        text-decoration: underline;
+                                    }
+                                }
+
+                                .play_op {
+                                    display: none;
+                                    width: 82px;
+                                    float: right;
+                                    font-size: 15px;
+
+                                    >a {
+                                        margin-right: 10px;
+
+                                        span {
+                                            color: #333;
+                                        }
+                                    }
+
+                                }
+
+                                &:hover {
+                                    >a {
+                                        width: 80px;
+                                    }
+                                    .play_op {
+                                        display: block;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    & > div:last-child{
+                        height: 32px;
+                        line-height: 32px;
+                        padding-right: 30px;
+                        text-align: right;
+                        font-size: 12px;
+                        >a:hover{
+                            text-decoration: underline;
                         }
                     }
                 }
@@ -536,5 +663,4 @@ function onNext() {
 
 
     }
-}
-</style>
+}</style>

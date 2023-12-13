@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router';
-
+import { onMounted } from 'vue'
 const nav = ['发现音乐', '我的音乐', '关注', '商城', '音乐人', '云推歌', '下载客户端']
 const tabBar = [
   {
@@ -23,6 +23,9 @@ const tabBar = [
     url: '/findMusic/newDisc'
   }
 ]
+// onMounted(()=>{
+//   this.$router.push({path: '/findMusic/recommend'});
+// })
 </script>
 
 <template>

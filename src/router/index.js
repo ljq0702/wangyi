@@ -7,6 +7,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
+      redirect: '/findMusic/recommend'
       // component: HomeView,
     },
     {

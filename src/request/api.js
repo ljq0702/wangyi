@@ -17,3 +17,11 @@ export function getNewDisc(data){
 export function getTopList(){
     return service.get('/toplist');
 }
+// 获取歌单所有歌曲
+export function getPlayListAll(data){
+    return service.get('/playlist/track/all',{params:data});
+}
+// 获取歌单详情
+export function getPlaylistDetail(id){
+    return service.get('/playlist/detail',{params: {id}})
+}
