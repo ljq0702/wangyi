@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router';
 import { onMounted } from 'vue'
+import Footer from './Footer.vue'
 const nav = ['发现音乐', '我的音乐', '关注', '商城', '音乐人', '云推歌', '下载客户端']
 const tabBar = [
   {
@@ -65,6 +66,7 @@ const tabBar = [
     <main>
       <RouterView />
     </main>
+    <Footer />
   </div>
 </template>
 <style scoped lang="less">
