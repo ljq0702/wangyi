@@ -1,5 +1,7 @@
 @import './base.css';
-
+body{
+    position: relative;
+}
 ul{
     list-style: none;
     padding: 0;
