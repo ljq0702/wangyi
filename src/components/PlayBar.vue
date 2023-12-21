@@ -3,21 +3,40 @@ import { onMounted, ref } from 'vue'
 import { useLockStore } from '@/stores/lock'
 const movement = ref(false)
 const lockStore = useLockStore();
-onMounted(() => { })
+const lockState= ref(false)
+const audio_play = ref(null) // 控制audio
+const isPlay = ref(false)
+onMounted(() => {
+    // lockState.value =  sessionStorage.getItem('lock')
+    lockState.value = lockStore.lockState
+    movement.value = lockState.value;
+})
 function overBar() {
-    if (lockStore.lockState) {
-        return;
-    }
     movement.value = true
 }
 function outBar() {
-    if (lockStore.lockState) {
+    if (lockState.value) {
         return;
     }
     movement.value = false
 }
 function changeLock() {
-    lockStore.changeState();
+    // lockStore.changeLockState();
+    lockState.value  = !lockState.value
+    lockStore.lockState = lockState.value
+    // window.sessionStorage.setItem('lock', lockState.value)
+    
+}
+function palySong() {
+    // console.log(123);
+    
+    if(isPlay.value){
+        audio_play.value.pause()
+    }else{
+        audio_play.value.play()
+    }
+    isPlay.value = !isPlay.value
+    
 }
 </script>
 <template>
@@ -27,7 +46,7 @@ function changeLock() {
         <div class="container clear">
             <div class="btns clear">
                 <a href="javascript:;" class="pre">上一首</a>
-                <a href="javascript:;" class="ply">播放/暂停</a>
+                <a href="javascript:;" class="ply" @click="palySong">播放/暂停</a>
                 <a href="javascript:;" class="nxt">下一首</a>
             </div>
             <div class="head">
@@ -57,6 +76,7 @@ function changeLock() {
                     </span>
                 </div>
             </div>
+            <audio class="audio_song" ref="audio_play" controls src="https://music.163.com/song/media/outer/url?id=33894312.mp3"></audio>
             <div class="oper clear">
                 <a href="javascript:;" class="icn icn-pip" title="画中画歌词">画中画歌词</a>
                 <a href="javascript:;" class="icn icn-add" title="收藏">收藏</a>
@@ -70,7 +90,7 @@ function changeLock() {
         </div>
         <div class="bg"></div>
         <div class="right">
-            <a class="lock_base" :class="lockStore.lockState ? 'not_lock' : 'lock'" href="javascript:;"
+            <a class="lock_base" :class="lockState ? 'not_lock' : 'lock'" href="javascript:;"
                 @click="changeLock"></a>
         </div>
     </div>
@@ -287,7 +307,12 @@ function changeLock() {
                 }
             }
         }
-
+        .audio_song{
+            position: absolute;
+            top: 0;
+            left: 0;
+            visibility: hidden;
+        }
         .icn {
             position: relative;
             float: left;

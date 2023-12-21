@@ -47,7 +47,6 @@ function getNewDiscData() {
             }
             newArr.push(newArr[0]);
             newArr.unshift(newArr[newArr.length - 2])
-            console.log(newArr);
             newDisc_list.values = newArr;
             // newDisc_list.values = res
         }
@@ -57,11 +56,8 @@ function getNewDiscData() {
 function getTopListData() {
     getTopList().then(res => {
         if (res.code == 200) {
-            console.log(res);
             topList.values = res.list.splice(0, 3);
-            console.log('toplist', topList.values);
             topList.values.forEach((item, index) => {
-                console.log(item);
                 getPlayListAll({ id: item.id, limit: 10 }).then(res => {
                     if (res.code == 200) {
                         topList.values[index].playlist = res.songs;
@@ -224,7 +220,7 @@ function onNext() {
                                     </li>
                                 </ul>
                             </div>
-                            <div class="">
+                            <div class="look_all">
                                 <a href="#"><span>查看全部></span></a>
                             </div>
                         </div>
@@ -435,9 +431,9 @@ function onNext() {
                 // padding-left: 16px;
                 position: relative;
 
-                >a {
-                    // float: left;
-                }
+                // >a {
+                //     // float: left;
+                // }
 
                 .pre {
                     position: absolute;
@@ -651,6 +647,7 @@ function onNext() {
                         padding-right: 30px;
                         text-align: right;
                         font-size: 12px;
+                        color: #666;
                         >a:hover{
                             text-decoration: underline;
                         }

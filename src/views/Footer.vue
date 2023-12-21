@@ -92,7 +92,7 @@ import {reactive} from 'vue'
         .container{
             width: 980px;
             height: 100%;
-            background-color: #fff;
+            // background-color: #fff;
             overflow: hidden;
             ul{
                 display: flex;
@@ -178,6 +178,9 @@ import {reactive} from 'vue'
                 text-align: center;
                 font-size: 12px;
                 line-height: 24px;
+                p{
+                    color: #666;
+                }
                 & p:first-child{
                     font-size: 12px;
                     color: #666;
