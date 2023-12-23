@@ -1,19 +1,67 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, onUpdated, ref, reactive } from 'vue'
 import { useLockStore } from '@/stores/lock'
+import { getSongDetails } from '@/request/api.js'
 const movement = ref(false)
 const lockStore = useLockStore();
-const lockState= ref(false)
+const lockState = ref(false)
 const audio_play = ref(null) // 控制audio
 const isPlay = ref(false)
+const songId = ref(null) // 歌曲id
+const songSrc = ref(null)
+const timer = ref(null);
+const currentBar = ref(null); // 当前走的进度条
+const songPlayObj = reactive({
+    currentTime: null,
+    duration: null,
+})
 onMounted(() => {
     // lockState.value =  sessionStorage.getItem('lock')
     lockState.value = lockStore.lockState
     movement.value = lockState.value;
+    nextTick(() => {
+        getSongDetailsData();
+    })
+
 })
+onUpdated(() => {
+    // palySong();
+})
+function songTime() {
+    // console.log(audio_play.value.currentTime);
+    // console.log(audio_play.value.duration);
+    timer.value = setInterval(() => {
+        console.log(audio_play.value.buffered);
+        let timeRanges  = audio_play.value.buffered
+        console.log(timeRanges.start(0));
+        if(audio_play.value.ended){
+            clearInterval(timer.value)
+        }
+        let currentTime =  audio_play.value.currentTime;
+        let duration = audio_play.value.duration;
+        songPlayObj.currentTime = formatTime(currentTime);
+        songPlayObj.duration = formatTime(duration);
+        currentBar.value.style.width = currentTime / duration * 466+'px';
+        // console.log();
+    }, 1000)
+    
+    
+}
+// 获取歌曲详情
+function getSongDetailsData() {
+    getSongDetails('347230').then(res => {
+        if (res.code == 200) {
+            songId.value = res.songs[0].id;
+            // audio_play.value = new Audio(`https://music.163.com/song/media/outer/url?id=191254.mp3`);
+            songSrc.value = `https://music.163.com/song/media/outer/url?id=191254.mp3`
+        }
+    })
+}
+// 移入底部
 function overBar() {
     movement.value = true
 }
+// 移除底部
 function outBar() {
     if (lockState.value) {
         return;
@@ -22,21 +70,34 @@ function outBar() {
 }
 function changeLock() {
     // lockStore.changeLockState();
-    lockState.value  = !lockState.value
+    lockState.value = !lockState.value
     lockStore.lockState = lockState.value
     // window.sessionStorage.setItem('lock', lockState.value)
-    
+
 }
 function palySong() {
     // console.log(123);
-    
-    if(isPlay.value){
+    if (isPlay.value) {
         audio_play.value.pause()
-    }else{
+        clearInterval(timer.value)
+    } else {
+        songTime();
         audio_play.value.play()
     }
     isPlay.value = !isPlay.value
-    
+
+}
+// 将时间戳转换成分秒的形式
+function formatTime(timestamp) {
+    const minutes = Math.floor(timestamp / 60)
+    const seconds = Math.floor(timestamp % 60)
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+}
+// 将分秒时间(如00:03)转化成秒数
+function timeToTimestamp(time) {
+  const [minutes, seconds] = time.split(':');
+  const totalSeconds = parseInt(minutes) * 60 + parseInt(seconds);
+  return totalSeconds;
 }
 </script>
 <template>
@@ -46,7 +107,7 @@ function palySong() {
         <div class="container clear">
             <div class="btns clear">
                 <a href="javascript:;" class="pre">上一首</a>
-                <a href="javascript:;" class="ply" @click="palySong">播放/暂停</a>
+                <a href="javascript:;" :class="isPlay ? 'pause' : 'ply'" @click="palySong">播放/暂停</a>
                 <a href="javascript:;" class="nxt">下一首</a>
             </div>
             <div class="head">
@@ -64,19 +125,19 @@ function palySong() {
                 <div class="m-pbar">
                     <div class="barbg">
                         <div class="rdy"></div>
-                        <div class="cur">
+                        <div class="cur" ref="currentBar">
                             <span class="btn">
                                 <i></i>
                             </span>
                         </div>
                     </div>
                     <span class="time">
-                        <em>00:28</em>
-                         / 04:56
+                        <em>{{ songPlayObj.currentTime }}</em>
+                        / {{ songPlayObj.duration }}
                     </span>
                 </div>
             </div>
-            <audio class="audio_song" ref="audio_play" controls src="https://music.163.com/song/media/outer/url?id=33894312.mp3"></audio>
+            <audio class="audio_song" ref="audio_play" controls :src="songSrc" preload="auto"></audio>
             <div class="oper clear">
                 <a href="javascript:;" class="icn icn-pip" title="画中画歌词">画中画歌词</a>
                 <a href="javascript:;" class="icn icn-add" title="收藏">收藏</a>
@@ -90,8 +151,7 @@ function palySong() {
         </div>
         <div class="bg"></div>
         <div class="right">
-            <a class="lock_base" :class="lockState ? 'not_lock' : 'lock'" href="javascript:;"
-                @click="changeLock"></a>
+            <a class="lock_base" :class="lockState ? 'not_lock' : 'lock'" href="javascript:;" @click="changeLock"></a>
         </div>
     </div>
 </template>
@@ -151,6 +211,16 @@ function palySong() {
 
                 &:hover {
                     background-position: -40px -204px;
+                }
+            }
+
+            .pause {
+                background-position: 0 -165px;
+                width: 36px;
+                height: 36px;
+
+                &:hover {
+                    background-position: -40px -165px;
                 }
             }
 
@@ -229,6 +299,7 @@ function palySong() {
             .m-pbar {
                 width: 466px;
                 position: relative;
+
                 .barbg {
                     width: 466px;
                     height: 9px;
@@ -271,7 +342,8 @@ function palySong() {
                     right: -100px;
                     color: #797979;
                     text-shadow: 0 1px 0 #121212;
-                    em{
+
+                    em {
                         color: #a1a1a1;
                         font-style: normal;
                     }
@@ -307,12 +379,14 @@ function palySong() {
                 }
             }
         }
-        .audio_song{
+
+        .audio_song {
             position: absolute;
             top: 0;
             left: 0;
             visibility: hidden;
         }
+
         .icn {
             position: relative;
             float: left;
@@ -403,4 +477,5 @@ function palySong() {
             }
         }
     }
-}</style>
+}
+</style>

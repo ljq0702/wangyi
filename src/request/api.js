@@ -25,3 +25,12 @@ export function getPlayListAll(data){
 export function getPlaylistDetail(id){
     return service.get('/playlist/detail',{params: {id}})
 }
+
+/**
+ * 
+ * @param {*} ids 歌曲id  可以进行字符串拼接多个id
+ * @returns 
+ */
+export function getSongDetails(ids){
+    return service.get('/song/detail',{params: {ids}})
+}
